@@ -4,9 +4,10 @@
 
 1. [Description](#description)
 1. [Setup - The basics of getting started with mymodule](#setup)
-    * [What mymodule affects](#what-mymodule-affects)
-    * [Setup requirements](#setup-requirements)
-    * [Beginning with mymodule](#beginning-with-mymodule)
+    * [Creating a module from scratchWhat mymodule affects](#creating-a-module-from-scratch)
+    * [Configuring rspec-puppet on an existing module](#configuring-rspec-puppet-on-an-existing-module)
+    * [Writing rspec-puppet tests](#writing-rspec-puppet-tests)
+    * [Using puppet-retrospec to generate tests automatically](#using-puppet-retrospec-to-generate-tests-automatically)
 1. [Usage - Configuration options and additional functionality](#usage)
 1. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
 1. [Limitations - OS compatibility, etc.](#limitations)
@@ -24,6 +25,108 @@ it?" If your module has a range of functionality (installation, configuration,
 management, etc.), this is the time to mention it.
 
 ## Setup
+
+You may wish to customize the rspec output by creating a `.rspec` file in the
+top level of the module or your $HOME directory.
+
+```
+$ cat .rspec
+--format documentation
+--color
+```
+
+### Creating a module from scratch
+
+When you use `puppet module generate <userid>-<modulename>` to
+start a new module, everything you need for rspec-puppet is
+pre-configured!
+
+```
+bundle exec puppet module generate jerej-mymodule
+cd mymodule
+bundle install --path .bundle/gems
+bundle exec rake -T
+bundle exec rake spec
+
+echo “.bundle” >> .gitignore
+git add --all
+git remote add origin https://github.com/jerej/puppet-mymodule.git
+git commit -m "Initial module creation"
+git push --set-upstream origin master
+
+bundle exec rake spec
+Cloning into 'spec/fixtures/modules/stdlib'...
+remote: Counting objects: 9302, done.
+remote: Total 9302 (delta 0), reused 0 (delta 0), pack-reused 9302
+Receiving objects: 100% (9302/9302), 1.87 MiB | 0 bytes/s, done.
+Resolving deltas: 100% (4475/4475), done.
+Checking connectivity... done.
+HEAD is now at 1ffd72d Merge branch 'puppetlabs-release/four_one_oh'
+/Users/jere/.rvm/rubies/ruby-2.3.1/bin/ruby -I/Users/jere/rpug/mymodule/.bundle/gems/ruby/2.3.0/gems/rspec-core-3.5.4/lib:/Users/jere/rpug/mymodule/.bundle/gems/ruby/2.3.0/gems/rspec-support-3.5.0/lib /Users/jere/rpug/mymodule/.bundle/gems/ruby/2.3.0/gems/rspec-core-3.5.4/exe/rspec --pattern spec/\{aliases,classes,defines,unit,functions,hosts,integration,types\}/\*\*/\*_spec.rb --color
+.
+
+Finished in 0.26083 seconds (files took 1.52 seconds to load)
+1 example, 0 failures
+```
+
+### Configuring rspec-puppet on an existing module
+
+example42 posted a brief setup guide for [adding rspec-puppet to an existing
+module](http://www.example42.com/2017/01/30/rspec-on-existing-code/)
+
+### Writing rspec-puppet tests
+
+The Ruby rspec grammer is reasonably human-readable and translates well from a
+business requirements doc.  This lends itself well to Test Driven Development
+(TDD).  Tests are written in the form of expectations applied to a subject and
+are grouped by `describe` and `context` blocks.
+
+Example:
+```
+require 'spec_helper'
+
+describe 'logrotate::rule' do
+  let(:title) { 'nginx' }
+
+  it { is_expected.to contain_class('logrotate::rule') }
+
+  it do
+    is_expected.to contain_file('/etc/logrotate.d/nginx').with({
+      'ensure' => 'present',
+      'owner'  => 'root',
+      'group'  => 'root',
+      'mode'   => '0444',
+    })
+  end
+end
+```
+
+See the [rspec-puppet tutorial](http://rspec-puppet.com/tutorial/) and the
+[matchers](http://rspec-puppet.com/matchers/) documentation for more.
+
+### Using puppet-retrospec to generate tests automatically
+
+[Puppet-Retrospec](https://github.com/nwops/puppet-retrospec) - “A retrospec
+plugin for puppet that generates puppet rspec test code based on the current
+code inside your module.”
+
+```
+git checkout master
+git reset --hard origin/master
+git checkout -b retrospec
+echo ‘gem 'puppet-retrospec' >> Gemfile
+bundle install --path .bundle/gems
+
+# add some code to `manifests/init.pp` or another class file.
+bundle exec retrospec puppet
+
+git status; # See all the files that were touched or added
+bundle exec rake spec
+
+# Clean up the formatting a bit:
+bundle exec rake rubocop:auto_correct
+
+```
 
 ### What mymodule affects **OPTIONAL**
 
@@ -81,3 +184,5 @@ know what the ground rules for contributing are.
 If you aren't using changelog, put your release notes here (though you should
 consider using changelog). You can also add any additional sections you feel
 are necessary or important to include here. Please use the `## ` header.
+
+

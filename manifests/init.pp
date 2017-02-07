@@ -42,7 +42,26 @@
 #
 # Copyright 2017 Your name here, unless otherwise noted.
 #
-class mymodule {
+class mymodule (
+  String $gen_error = ''
+){
+
+  #if $gen_error {
+  #  fail "MYMODULE: ${gen_error}"
+  #}
+
+  file { 'puppet-demo-file':
+    path   => '/tmp/puppet-demo-file',
+    source => '/etc/hosts',
+    owner  => 'jere',
+    group  => 'staff',
+  }
+
+  package { 'rbeapi':
+    ensure   => latest,
+    provider => 'gem',
+  }
+
 
 
 }
