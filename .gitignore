@@ -19,3 +19,7 @@ tags
 
 ## Bundler
 .bundle
+Gemfile.lock
+
+## Rspec-puppet
+spec/fixtures/{modules|manifests}
