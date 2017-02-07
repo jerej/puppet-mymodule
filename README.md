@@ -4,7 +4,7 @@
 
 1. [Description](#description)
 1. [Setup - The basics of getting started with mymodule](#setup)
-    * [Creating a module from scratchWhat mymodule affects](#creating-a-module-from-scratch)
+    * [Creating a module from scratch](#creating-a-module-from-scratch)
     * [Configuring rspec-puppet on an existing module](#configuring-rspec-puppet-on-an-existing-module)
     * [Writing rspec-puppet tests](#writing-rspec-puppet-tests)
     * [Using puppet-retrospec to generate tests automatically](#using-puppet-retrospec-to-generate-tests-automatically)
