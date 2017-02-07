@@ -82,7 +82,7 @@ business requirements doc.  This lends itself well to Test Driven Development
 are grouped by `describe` and `context` blocks.
 
 Example:
-```
+```ruby
 require 'spec_helper'
 
 describe 'logrotate::rule' do
